@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BOUGHAE CAR - إدارة الأسطول والتنبيهات والمالية</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #F57C00 0%, #1A237E 100%);
+        color: #333;
+        min-height: 100vh;
+        padding: 20px;
+        background-attachment: fixed;
+    }
+    h1, h2, h3 {
+        text-align: center;
+        color: #fefefe;
+        user-select: none;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    nav {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    nav button {
+        background: #f9a825;
+        color: #1A237E;
+        border: none;
+        padding: 12px 26px;
+        margin: 0 8px;
+        border-radius: 30px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(249, 168, 37, 0.7);
+        transition: 0.3s;
+        font-size: 1rem;
+    }
+    nav button:hover {
+        background: #1A237E;
+        color: #f9a825;
+        box-shadow: 0 6px 20px rgba(26, 35, 126, 0.9);
+    }
+    .page {
+        display: none;
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 20px 30px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        color: #fefefe;
+    }
+    .page.active {
+        display: block;
+    }
+    .car-card {
+        background: rgba(255,255,255,0.15);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .car-card img {
+        width: 140px;
+        height: 90px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        user-select: none;
+    }
+    .car-details {
+        flex: 1;
+        text-align: right;
+        color: #fefefe;
+    }
+    .car-status {
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: 8px;
+        color: white;
+        user-select: none;
+        font-size: 0.9rem;
+    }
+    .available {
+        background-color: #43a047; /* أخضر */
+    }
+    .booked {
+        background-color: #e53935; /* أحمر */
+    }
+    form {
+        max-width: 450px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 25px 30px;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        color: #fefefe;
+        user-select: none;
+    }
+    form label {
+        display: block;
+        margin: 12px 0 6px 0;
+        font-weight: 700;
+        text-align: right;
+    }
+    form input[type="text"],
+    form input[type="number"],
+    form select,
+    form input[type="date"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 12px;
+        border: none;
+        font-size: 1rem;
+        box-sizing: border-box;
+        background: rgba(255,255,255,0.9);
+        color: #1A237E;
+    }
+    form input[type="file"] {
+        margin-top: 8px;
+        color: #fefefe;
+    }
+    form button {
+        margin-top: 20px;
+        width: 100%;
+        background-color: #f9a825;
+        color: #1A237E;
+        font-weight: 700;
+        padding: 14px 0;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(249, 168, 37, 0.7);
+        font-size: 1.1rem;
+        transition: 0.3s;
+    }
+    form button:hover {
+        background-color: #1A237E;
+        color: #f9a825;
+        box-shadow: 0 6px 20px rgba(26, 35, 126, 0.9);
+    }
+    ul {
+        padding-inline-start: 20px;
+        margin: 8px 0 0 0;
+    }
+    ul li {
+        margin-bottom: 6px;
+    }
+    #logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 30px;
+        user-select: none;
+    }
+    #logo svg {
+        width: 60px;
+        height: 60px;
+        fill: #f9a825;
+        filter: drop-shadow(0 0 4px rgba(249, 168, 37, 0.8));
+    }
+    #logo h1 {
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: #fefefe;
+        margin: 0;
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        color: #fefefe;
+    }
+    th, td {
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 10px;
+        text-align: right;
+    }
+    th {
+        background: rgba(249, 168, 37, 0.5);
+        font-weight: 700;
+    }
+    .summary {
+        font-size: 1.3rem;
+        font-weight: 900;
+        margin-top: 20px;
+        color: #f9a825;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+<div id="logo" aria-label="شعار شركة BOUGHAE CAR">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" role="img" >
+    <rect x="8" y="28" width="48" height="16" rx="4" ry="4"/>
+    <circle cx="18" cy="46" r="6" fill="#f9a825" />
+    <circle cx="46" cy="46" r="6" fill="#f9a825" />
+    <path d="M44 22 L54 12 L58 16 L48 26 Z" fill="#f9a825" />
+  </svg>
+  <h1>BOUGHAE CAR</h1>
+</div>
+
+<nav>
+    <button onclick="showPage('available')">السيارات المتاحة</button>
+    <button onclick="showPage('fleet')">إدارة الأسطول</button>
+    <button onclick="showPage('booking')">إضافة حجز</button>
+    <button onclick="showPage('alerts')">التنبيهات</button>
+    <button onclick="showPage('finance')">المالية</button>
+</nav>
+
+<section id="available" class="page active" tabindex="0">
+    <h2>السيارات المتاحة فقط</h2>
+    <div id="available-cars-list"></div>
+</section>
+
+<section id="fleet" class="page" tabindex="0">
+    <h2>إدارة الأسطول الكامل</h2>
+
+    <div id="fleet-cars-list"></div>
+
+    <h3>إضافة سيارة جديدة</h3>
+    <form id="add-car-form" aria-label="نموذج إضافة سيارة جديدة">
+        <label for="car-name">اسم السيارة</label>
+        <input type="text" id="car-name" required placeholder="مثلاً: DACIA LOGAN" />
+
+        <label for="car-status">حالة السيارة</label>
+        <select id="car-status" required>
+            <option value="available">متوفرة</option>
+            <option value="booked">محجوزة</option>
+        </select>
+
+        <label for="insurance-date">تاريخ انتهاء التأمين</label>
+        <input type="date" id="insurance-date" required />
+
+        <label for="inspection-date">تاريخ الفحص الفني</label>
+        <input type="date" id="inspection-date" required />
+
+        <label for="car-image">صورة السيارة</label>
+        <input type="file" id="car-image" accept="image/*" required />
+
+        <button type="submit">إضافة السيارة</button>
+    </form>
+</section>
+
+<section id="booking" class="page" tabindex="0">
+    <h2>إضافة حجز جديد</h2>
+    <form id="add-booking-form" aria-label="نموذج إضافة حجز جديد">
+        <label for="booking-car">اختر السيارة</label>
+        <select id="booking-car" required>
+            <!-- سيتم تعبئته ديناميكياً -->
+        </select>
+
+        <label for="rental-days">مدة الكراء (بالأيام)</label>
+        <input type="number" id="rental-days" min="1" required placeholder="مثلاً: 3" />
+
+        <label for="price-per-day">سعر الكراء لليوم (درهم)</label>
+        <input type="number" id="price-per-day" min="1" required placeholder="مثلاً: 200" />
+
+        <button type="submit">تأكيد الحجز</button>
+    </form>
+
+    <h3>الحجوزات الحالية</h3>
+    <div id="bookings-list"></div>
+</section>
+
+<section id="alerts" class="page" tabindex="0">
+    <h2>تنبيهات المواعيد القادمة</h2>
+    <div id="alerts-list"></div>
+</section>
+
+<section id="finance" class="page" tabindex="0">
+    <h2>المالية - المصاريف</h2>
+
+    <form id="add-expense-form" aria-label="نموذج إضافة مصروف">
+        <h3>إضافة مصروف</h3>
+        <label for="expense-desc">الوصف</label>
+        <input type="text" id="expense-desc" placeholder="مثلاً: صيانة سيارة DACIA LOGAN" required />
+
+        <label for="expense-amount">المبلغ (بالدرهم)</label>
+        <input type="number" id="expense-amount" min="0" step="0.01" placeholder="50.00" required />
+
+        <button type="submit">إضافة المصروف</button>
+    </form>
+
+    <div class="summary" aria-live="polite" aria-atomic="true">
+        <p>إجمالي الإيرادات: <span id="total-income">0.00</span> درهم</p>
+        <p>إجمالي المصاريف: <span id="total-expenses">0.00</span> درهم</p>
+        <p>صافي الربح: <span id="net-profit">0.00</span> درهم</p>
+    </div>
+
+    <h3>قائمة المصاريف</h3>
+    <table aria-label="جدول المصاريف">
+        <thead>
+            <tr>
+                <th>الوصف</th>
+                <th>المبلغ (درهم)</th>
+            </tr>
+        </thead>
+        <tbody id="expense-list"></tbody>
+    </table>
+
+    <h3>قائمة الحجوزات (تظهر هنا المداخيل)</h3>
+    <table aria-label="جدول الحجوزات">
+        <thead>
+            <tr>
+                <th>السيارة</th>
+                <th>مدة الكراء (أيام)</th>
+                <th>السعر لكل يوم (درهم)</th>
+                <th>الإجمالي (درهم)</th>
+                <th>تاريخ الحجز</th>
+            </tr>
+        </thead>
+        <tbody id="income-bookings-list"></tbody>
+    </table>
+</section>
+
+<script>
+    const STORAGE_KEY = 'boughae_car_fleet';
+    const FINANCE_STORAGE_KEY = 'boughae_car_finance';
+    const BOOKINGS_STORAGE_KEY = 'boughae_car_bookings';
+
+    let cars = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+        {
+            id: 1,
+            name: "DACIA SANDERO",
+            status: "available",
+            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Dacia_Sandero_MCV_Stepway_front_2020.jpg/320px-Dacia_Sandero_MCV_Stepway_front_2020.jpg",
+            insuranceDate: "2025-09-15",
+            inspectionDate: "2025-08-30"
+        },
+        {
+            id: 2,
+            name: "DACIA LOGAN",
+            status: "booked",
+            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Dacia_Logan_Series_2_Front.jpg/320px-Dacia_Logan_Series_2_Front.jpg",
+            insuranceDate: "2025-09-05",
+            inspectionDate: "2025-08-22"
+        },
+        {
+            id: 3,
+            name: "DACIA DUSTER",
+            status: "available",
+            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Dacia_Duster_II_Gen_Front.jpg/320px-Dacia_Duster_II_Gen_Front.jpg",
+            insuranceDate: "2025-09-20",
+            inspectionDate: "2025-09-01"
+        }
+    ];
+
+    let financeData = JSON.parse(localStorage.getItem(FINANCE_STORAGE_KEY)) || {
+        expenses: []
+    };
+
+    let bookings = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY)) || [];
+
+    // حفظ البيانات
+    function saveToStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cars));
+    }
+    function saveFinanceToStorage() {
+        localStorage.setItem(FINANCE_STORAGE_KEY, JSON.stringify(financeData));
+    }
+    function saveBookingsToStorage() {
+        localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(bookings));
+    }
+
+    // تغيير الصفحات
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        if(pageId === 'available') {
+            renderAvailableCars();
+        } else if(pageId === 'fleet') {
+            renderFleetCars();
+        } else if(pageId === 'alerts') {
+            renderAlerts();
+        } else if(pageId === 'finance') {
+            renderFinance();
+        } else if(pageId === 'booking') {
+            renderBookingForm();
+        }
+    }
+
+    // عرض السيارات المتاحة
+    function renderAvailableCars() {
+        const container = document.getElementById('available-cars-list');
+        container.innerHTML = '';
+
+        const availableCars = cars.filter(car => car.status === 'available');
+
+        if(availableCars.length === 0){
+            container.innerHTML = '<p>لا توجد سيارات متاحة حالياً.</p>';
+            return;
+        }
+
+        availableCars.forEach(car => {
+            const card = document.createElement('div');
+            card.className = 'car-card';
+
+            card.innerHTML = `
+                <img src="${car.image}" alt="${car.name}" />
+                <div class="car-details">
+                    <h3>${car.name}</h3>
+                    <div class="car-status available">متوفرة</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // عرض الأسطول مع زر حذف السيارة
+    function renderFleetCars() {
+        const container = document.getElementById('fleet-cars-list');
+        container.innerHTML = '';
+
+        if(cars.length === 0){
+            container.innerHTML = '<p>لا توجد سيارات في الأسطول.</p>';
+            return;
+        }
+
+        cars.forEach(car => {
+            const card = document.createElement('div');
+            card.className = 'car-card';
+
+            card.innerHTML = `
+                <img src="${car.image}" alt="${car.name}" />
+                <div class="car-details">
+                    <h3>${car.name}</h3>
+                    <p>حالة السيارة: <span class="car-status ${car.status === 'available' ? 'available' : 'booked'}">${car.status === 'available' ? 'متوفرة' : 'محجوزة'}</span></p>
+                    <p>تأمين حتى: ${car.insuranceDate}</p>
+                    <p>فحص فني حتى: ${car.inspectionDate}</p>
+                    <button class="delete-car-btn" data-id="${car.id}" style="margin-top:10px; background:#e53935; color:#fff; border:none; padding:8px 15px; border-radius:12px; cursor:pointer;">حذف السيارة</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // أحداث حذف السيارة
+        document.querySelectorAll('.delete-car-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const carId = parseInt(this.getAttribute('data-id'));
+                if(confirm('هل أنت متأكد من حذف هذه السيارة؟ لن يمكن التراجع عن هذا الإجراء.')) {
+                    cars = cars.filter(c => c.id !== carId);
+                    saveToStorage();
+                    renderFleetCars();
+                    renderAvailableCars();
+                    renderBookingForm();
+                    renderFinance();
+                }
+            });
+        });
+    }
+
+    // إضافة سيارة جديدة
+    document.getElementById('add-car-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('car-name').value.trim();
+        const status = document.getElementById('car-status').value;
+        const insuranceDate = document.getElementById('insurance-date').value;
+        const inspectionDate = document.getElementById('inspection-date').value;
+        const fileInput = document.getElementById('car-image');
+
+        if(fileInput.files.length === 0){
+            alert('يرجى رفع صورة السيارة.');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event){
+            const imageBase64 = event.target.result;
+
+            const newCar = {
+                id: Date.now(),
+                name,
+                status,
+                insuranceDate,
+                inspectionDate,
+                image: imageBase64
+            };
+
+            cars.push(newCar);
+            saveToStorage();
+
+            // إعادة تعيين النموذج
+            e.target.reset();
+
+            renderFleetCars();
+            renderAvailableCars();
+            renderBookingForm();
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    // نموذج الحجز
+    function renderBookingForm() {
+        const select = document.getElementById('booking-car');
+        select.innerHTML = '';
+
+        const availableCars = cars.filter(car => car.status === 'available');
+        if(availableCars.length === 0){
+            const option = document.createElement('option');
+            option.textContent = 'لا توجد سيارات متاحة';
+            option.disabled = true;
+            option.selected = true;
+            select.appendChild(option);
+            return;
+        }
+
+        availableCars.forEach(car => {
+            const option = document.createElement('option');
+            option.value = car.id;
+            option.textContent = car.name;
+            select.appendChild(option);
+        });
+
+        renderBookingsList();
+    }
+
+    // إضافة حجز جديد
+    document.getElementById('add-booking-form').addEventListener('submit', function(e){
+        e.preventDefault();
+
+        const carId = parseInt(document.getElementById('booking-car').value);
+        const rentalDays = parseInt(document.getElementById('rental-days').value);
+        const pricePerDay = parseFloat(document.getElementById('price-per-day').value);
+
+        const car = cars.find(c => c.id === carId);
+        if(!car){
+            alert('السيارة غير موجودة!');
+            return;
+        }
+
+        // تحديث حالة السيارة إلى محجوزة
+        car.status = 'booked';
+
+        const booking = {
+            id: Date.now(),
+            carId,
+            rentalDays,
+            pricePerDay,
+            date: new Date().toISOString().split('T')[0]
+        };
+
+        bookings.push(booking);
+
+        saveBookingsToStorage();
+        saveToStorage();
+
+        // إعادة تعيين النموذج
+        e.target.reset();
+
+        renderAvailableCars();
+        renderFleetCars();
+        renderBookingForm();
+        renderBookingsList();
+        renderFinance();
+    });
+
+    // عرض قائمة الحجوزات
+    function renderBookingsList() {
+        const container = document.getElementById('bookings-list');
+        container.innerHTML = '';
+
+        if(bookings.length === 0){
+            container.innerHTML = '<p>لا توجد حجوزات حالياً.</p>';
+            return;
+        }
+
+        bookings.forEach(b => {
+            const car = cars.find(c => c.id === b.carId);
+            if(car){
+                const div = document.createElement('div');
+                div.style = "background:rgba(255,255,255,0.15); margin:10px 0; padding:10px; border-radius:10px; color:#fefefe;";
+                div.innerHTML = `
+                    <strong>السيارة:</strong> ${car.name} |
+                    <strong>مدة الكراء:</strong> ${b.rentalDays} يوم |
+                    <strong>السعر لكل يوم:</strong> ${b.pricePerDay.toFixed(2)} درهم |
+                    <strong>الإجمالي:</strong> ${(b.rentalDays * b.pricePerDay).toFixed(2)} درهم |
+                    <strong>تاريخ الحجز:</strong> ${b.date}
+                `;
+                container.appendChild(div);
+            }
+        });
+    }
+
+    // تنبيهات التأمين والفحص خلال 15 يوم القادمة
+    function renderAlerts() {
+        const container = document.getElementById('alerts-list');
+        container.innerHTML = '';
+
+        const today = new Date();
+        const alertDays = 15;
+
+        const alerts = [];
+
+        cars.forEach(car => {
+            const insuranceDate = new Date(car.insuranceDate);
+            const inspectionDate = new Date(car.inspectionDate);
+
+            const diffInsurance = Math.ceil((insuranceDate - today) / (1000*60*60*24));
+            const diffInspection = Math.ceil((inspectionDate - today) / (1000*60*60*24));
+
+            if(diffInsurance >= 0 && diffInsurance <= alertDays){
+                alerts.push(`تأمين سيارة ${car.name} سينتهي خلال ${diffInsurance} يوم.`);
+            }
+            if(diffInspection >= 0 && diffInspection <= alertDays){
+                alerts.push(`الفحص الفني لسيارة ${car.name} سينتهي خلال ${diffInspection} يوم.`);
+            }
+        });
+
+        if(alerts.length === 0){
+            container.innerHTML = '<p>لا توجد تنبيهات حالياً.</p>';
+            return;
+        }
+
+        const ul = document.createElement('ul');
+        alerts.forEach(alert => {
+            const li = document.createElement('li');
+            li.textContent = alert;
+            ul.appendChild(li);
+        });
+        container.appendChild(ul);
+    }
+
+    // إضافة مصروف
+    document.getElementById('add-expense-form').addEventListener('submit', function(e){
+        e.preventDefault();
+
+        const desc = document.getElementById('expense-desc').value.trim();
+        const amount = parseFloat(document.getElementById('expense-amount').value);
+
+        if(desc === '' || isNaN(amount) || amount <= 0){
+            alert('يرجى إدخال وصف صحيح ومبلغ أكبر من الصفر.');
+            return;
+        }
+
+        financeData.expenses.push({desc, amount});
+        saveFinanceToStorage();
+
+        e.target.reset();
+        renderFinance();
+    });
+
+    // عرض المالية (مداخيل، مصاريف، صافي ربح)
+    function renderFinance() {
+        // حساب المداخيل من الحجوزات
+        let totalIncome = 0;
+        bookings.forEach(b => {
+            totalIncome += b.rentalDays * b.pricePerDay;
+        });
+
+        // حساب المصاريف
+        let totalExpenses = 0;
+        financeData.expenses.forEach(exp => {
+            totalExpenses += exp.amount;
+        });
+
+        const netProfit = totalIncome - totalExpenses;
+
+        document.getElementById('total-income').textContent = totalIncome.toFixed(2);
+        document.getElementById('total-expenses').textContent = totalExpenses.toFixed(2);
+        document.getElementById('net-profit').textContent = netProfit.toFixed(2);
+
+        // عرض قائمة المصاريف
+        const expenseList = document.getElementById('expense-list');
+        expenseList.innerHTML = '';
+        if(financeData.expenses.length === 0){
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="2" style="text-align:center;">لا توجد مصاريف مسجلة.</td>`;
+            expenseList.appendChild(tr);
+        } else {
+            financeData.expenses.forEach(exp => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${exp.desc}</td><td>${exp.amount.toFixed(2)}</td>`;
+                expenseList.appendChild(tr);
+            });
+        }
+
+        // عرض قائمة الحجوزات المالية
+        const incomeBookingsList = document.getElementById('income-bookings-list');
+        incomeBookingsList.innerHTML = '';
+
+        if(bookings.length === 0){
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="5" style="text-align:center;">لا توجد حجوزات مالية مسجلة.</td>`;
+            incomeBookingsList.appendChild(tr);
+        } else {
+            bookings.forEach(b => {
+                const car = cars.find(c => c.id === b.carId);
+                if(car){
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${car.name}</td>
+                        <td>${b.rentalDays}</td>
+                        <td>${b.pricePerDay.toFixed(2)}</td>
+                        <td>${(b.rentalDays * b.pricePerDay).toFixed(2)}</td>
+                        <td>${b.date}</td>
+                    `;
+                    incomeBookingsList.appendChild(tr);
+                }
+            });
+        }
+    }
+
+    // تحميل البيانات عند بدء تشغيل الصفحة
+    window.addEventListener('load', () => {
+        showPage('available');
+    });
+</script>
+
+</body>
+</html>
